@@ -136,117 +136,113 @@ const PassengerHomeScreen = () => {
     </View>
   );
 
-  // Componente de Estado del Viaje
-  const TripStatus = () => {
-    if (!activeRequest) return null;
+  // Reemplazar el componente TripStatus con este:
+const BusRoutes = () => {
+  if (!activeRequest) return null;
 
-    const getStatusInfo = () => {
-      switch (activeRequest.status) {
-        case 'searching':
-          return {
-            text: 'Buscando conductor...',
-            color: COLORS.warning,
-            icon: 'search-outline'
-          };
-        case 'assigned':
-          return {
-            text: 'Conductor asignado',
-            color: COLORS.success,
-            icon: 'checkmark-circle-outline'
-          };
-        default:
-          return {
-            text: 'En progreso',
-            color: COLORS.primary,
-            icon: 'car-outline'
-          };
-      }
-    };
+  const busRoutes = [
+    {
+      id: 1,
+      name: 'Línea 15 - Centro Histórico',
+      duration: '25 min',
+      frequency: 'Cada 8 minutos',
+      nextBus: '3 min',
+      route: 'Universidad → Plaza Grande → Destino'
+    },
+    {
+      id: 2,
+      name: 'Línea 23 - Quitumbe',
+      duration: '32 min',
+      frequency: 'Cada 12 minutos',
+      nextBus: '7 min',
+      route: 'Universidad → Terminal Sur → Destino'
+    },
+    {
+      id: 3,
+      name: 'Línea 8 - La Marín',
+      duration: '28 min',
+      frequency: 'Cada 10 minutos',
+      nextBus: '15 min',
+      route: 'Universidad → La Marín → Destino'
+    }
+  ];
 
-    const statusInfo = getStatusInfo();
-
-    return (
-      <View style={globalStyles.card}>
-        <View style={styles.statusHeader}>
-          <Text style={globalStyles.subtitle}>Estado del Viaje</Text>
-          <View style={[styles.statusBadge, { backgroundColor: statusInfo.color }]}>
-            <Icon name={statusInfo.icon} size={16} color={COLORS.white} />
-            <Text style={styles.statusText}>{statusInfo.text}</Text>
-          </View>
-        </View>
-
-        <View style={styles.routeInfo}>
-          <View style={styles.routeItem}>
-            <Icon name="location-outline" size={20} color={COLORS.success} />
-            <View style={styles.routeText}>
-              <Text style={globalStyles.textBold}>Origen</Text>
-              <Text style={globalStyles.text}>{activeRequest.origin}</Text>
-            </View>
-          </View>
-
-          <View style={styles.routeItem}>
-            <Icon name="flag-outline" size={20} color={COLORS.danger} />
-            <View style={styles.routeText}>
-              <Text style={globalStyles.textBold}>Destino</Text>
-              <Text style={globalStyles.text}>{activeRequest.destination}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Información del Conductor */}
-        {activeRequest.driver && (
-          <View style={styles.driverInfo}>
-            <View style={styles.driverHeader}>
-              <View style={styles.driverAvatar}>
-                <Icon name="person" size={24} color={COLORS.primary} />
-              </View>
-              <View style={styles.driverDetails}>
-                <Text style={globalStyles.textBold}>{activeRequest.driver.name}</Text>
-                <Text style={globalStyles.text}>Placa: {activeRequest.driver.plate}</Text>
-              </View>
-              <View style={styles.driverStats}>
-                <View style={styles.rating}>
-                  <Icon name="star" size={16} color={COLORS.warning} />
-                  <Text style={styles.ratingText}>{activeRequest.driver.rating}</Text>
-                </View>
-                <Text style={styles.arrivalText}>
-                  Llegada: {activeRequest.driver.estimatedArrival} min
-                </Text>
-              </View>
-            </View>
-          </View>
-        )}
-
-        {/* Botones de Acción */}
-        <View style={styles.actions}>
-          {activeRequest.status === 'searching' && (
-            <Button
-              title="Cancelar Solicitud"
-              variant="danger"
-              onPress={handleCancelRequest}
-              style={styles.actionButton}
-            />
-          )}
-          
-          {activeRequest.driver && (
-            <View style={styles.driverActions}>
-              <Button
-                title="Llamar"
-                variant="secondary"
-                size="small"
-                style={styles.callButton}
-              />
-              <Button
-                title="Ver en Mapa"
-                size="small"
-                style={styles.mapButton}
-              />
-            </View>
-          )}
-        </View>
-      </View>
+  const handleBusPress = (bus) => {
+    Alert.alert(
+      bus.name,
+      `Ruta: ${bus.route}\n\nFrecuencia: ${bus.frequency}\nPróximo bus: ${bus.nextBus}\nTiempo al destino: ${bus.duration}`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Ver Horarios Completos', onPress: () => {
+          // Aquí podrías navegar a una pantalla de horarios detallados
+          Alert.alert('Horarios', 'Función de horarios detallados próximamente');
+        }}
+      ]
     );
   };
+
+  return (
+    <View style={globalStyles.card}>
+      <View style={styles.routesHeader}>
+        <Text style={globalStyles.subtitle}>Rutas Disponibles</Text>
+        <TouchableOpacity onPress={() => setActiveRequest(null)}>
+          <Icon name="close-outline" size={24} color={COLORS.gray[600]} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.routeInfo}>
+        <View style={styles.routeItem}>
+          <Icon name="location-outline" size={16} color={COLORS.success} />
+          <Text style={styles.routeLocationText}>{activeRequest.origin}</Text>
+        </View>
+        <View style={styles.routeArrow}>
+          <Icon name="arrow-down-outline" size={16} color={COLORS.gray[400]} />
+        </View>
+        <View style={styles.routeItem}>
+          <Icon name="flag-outline" size={16} color={COLORS.danger} />
+          <Text style={styles.routeLocationText}>{activeRequest.destination}</Text>
+        </View>
+      </View>
+
+      <View style={styles.busList}>
+        {busRoutes.map(bus => (
+          <TouchableOpacity 
+            key={bus.id} 
+            style={styles.busRouteItem}
+            onPress={() => handleBusPress(bus)}
+          >
+            <View style={styles.busIcon}>
+              <Icon name="bus-outline" size={20} color={COLORS.primary} />
+            </View>
+            
+            <View style={styles.busRouteInfo}>
+              <Text style={styles.busName}>{bus.name}</Text>
+              <Text style={styles.busRoute}>{bus.route}</Text>
+              <View style={styles.busDetails}>
+                <Text style={styles.busFrequency}>{bus.frequency}</Text>
+                <Text style={styles.busSeparator}>•</Text>
+                <Text style={styles.busNext}>Próximo: {bus.nextBus}</Text>
+              </View>
+            </View>
+            
+            <View style={styles.busDuration}>
+              <Text style={styles.durationText}>{bus.duration}</Text>
+              <Text style={styles.durationLabel}>al destino</Text>
+              <Icon name="chevron-forward-outline" size={16} color={COLORS.gray[400]} />
+            </View>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <Button
+        title="Nueva Búsqueda"
+        variant="secondary"
+        onPress={() => setActiveRequest(null)}
+        style={styles.newSearchButton}
+      />
+    </View>
+  );
+};
 
   // Componente de Solicitud de Transporte
   const TransportRequest = () => {
@@ -330,7 +326,7 @@ const PassengerHomeScreen = () => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <TripStatus />
+        <BusRoutes />
         <TransportRequest />
         <NearbyBuses />
       </ScrollView>
@@ -388,87 +384,9 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-  statusHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: SPACING.md,
-  },
-  statusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: SPACING.xs,
-    borderRadius: 20,
-  },
-  statusText: {
-    color: COLORS.white,
-    fontSize: SIZES.sm,
-    fontWeight: '500',
-    marginLeft: SPACING.xs,
-  },
-  routeInfo: {
-    marginBottom: SPACING.md,
-  },
-  routeItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: SPACING.sm,
-  },
   routeText: {
     marginLeft: SPACING.sm,
     flex: 1,
-  },
-  driverInfo: {
-    backgroundColor: COLORS.gray[50],
-    borderRadius: 12,
-    padding: SPACING.md,
-    marginBottom: SPACING.md,
-  },
-  driverHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  driverAvatar: {
-    width: 48,
-    height: 48,
-    backgroundColor: COLORS.primary + '20',
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  driverDetails: {
-    flex: 1,
-    marginLeft: SPACING.sm,
-  },
-  driverStats: {
-    alignItems: 'flex-end',
-  },
-  rating: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: SPACING.xs,
-  },
-  ratingText: {
-    fontSize: SIZES.sm,
-    fontWeight: '600',
-    marginLeft: SPACING.xs,
-    color: COLORS.gray[700],
-  },
-  arrivalText: {
-    fontSize: SIZES.sm,
-    color: COLORS.gray[600],
-  },
-  driverActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: SPACING.sm,
-  },
-  callButton: {
-    flex: 0.48,
-  },
-  mapButton: {
-    flex: 0.48,
   },
   form: {
     marginTop: SPACING.md,
@@ -511,6 +429,93 @@ const styles = StyleSheet.create({
     fontSize: SIZES.sm,
     color: COLORS.gray[600],
   },
+routesHeader: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: SPACING.md,
+},
+routeInfo: {
+  alignItems: 'center',
+  marginBottom: SPACING.lg,
+  paddingVertical: SPACING.md,
+  backgroundColor: COLORS.gray[50],
+  borderRadius: 8,
+},
+routeItem: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginVertical: SPACING.xs,
+},
+routeLocationText: {
+  marginLeft: SPACING.xs,
+  fontSize: SIZES.sm,
+  color: COLORS.gray[700],
+  fontWeight: '500',
+},
+routeArrow: {
+  marginVertical: SPACING.xs,
+},
+busRouteItem: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: COLORS.white,
+  borderRadius: 12,
+  padding: SPACING.md,
+  marginBottom: SPACING.sm,
+  borderWidth: 1,
+  borderColor: COLORS.gray[200],
+},
+busRouteInfo: {
+  flex: 1,
+  marginLeft: SPACING.sm,
+},
+busName: {
+  fontSize: SIZES.md,
+  fontWeight: '600',
+  color: COLORS.gray[800],
+  marginBottom: SPACING.xs,
+},
+busRoute: {
+  fontSize: SIZES.sm,
+  color: COLORS.gray[600],
+  marginBottom: SPACING.xs,
+},
+busDetails: {
+  flexDirection: 'row',
+  alignItems: 'center',
+},
+busFrequency: {
+  fontSize: SIZES.xs,
+  color: COLORS.success,
+  fontWeight: '500',
+},
+busSeparator: {
+  fontSize: SIZES.xs,
+  color: COLORS.gray[400],
+  marginHorizontal: SPACING.xs,
+},
+busNext: {
+  fontSize: SIZES.xs,
+  color: COLORS.primary,
+  fontWeight: '500',
+},
+busDuration: {
+  alignItems: 'flex-end',
+},
+durationText: {
+  fontSize: SIZES.md,
+  fontWeight: '600',
+  color: COLORS.primary,
+},
+durationLabel: {
+  fontSize: SIZES.xs,
+  color: COLORS.gray[600],
+  marginBottom: SPACING.xs,
+},
+newSearchButton: {
+  marginTop: SPACING.md,
+},
 });
 
 export default PassengerHomeScreen;

@@ -18,9 +18,9 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 import { COLORS, SPACING, SIZES } from '../utils/constants';
 import { globalStyles } from '../styles/globalStyles';
 
-const LoginScreen = () => {
-  const [email, setEmail] = useState('usuario@test.com');
-  const [password, setPassword] = useState('123456');
+const LoginScreen = ({ navigation }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [selectedMode, setSelectedMode] = useState('passenger');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -102,7 +102,7 @@ const LoginScreen = () => {
               <Icon name="navigate" size={40} color={COLORS.primary} />
             </View>
             <Text style={styles.title}>A Volver</Text>
-            <Text style={styles.subtitle}>Tu transporte universitario</Text>
+            <Text style={styles.subtitle}>Tu guía de transporte</Text>
           </View>
 
           {/* Selector de Modo */}
@@ -114,7 +114,7 @@ const LoginScreen = () => {
               label="Correo Electrónico"
               value={email}
               onChangeText={setEmail}
-              placeholder="tu@email.com"
+              placeholder="Ej: juan.perez@email.com"
               keyboardType="email-address"
               autoCapitalize="none"
               leftIcon="mail-outline"
@@ -124,7 +124,7 @@ const LoginScreen = () => {
               label="Contraseña"
               value={password}
               onChangeText={setPassword}
-              placeholder="••••••••"
+              placeholder="Ingresa tu contraseña"
               secureTextEntry
               leftIcon="lock-closed-outline"
             />
@@ -132,20 +132,20 @@ const LoginScreen = () => {
 
           {/* Botón de Login */}
           <Button
-            title={`Iniciar Sesión como ${selectedMode === 'passenger' ? 'Pasajero' : 'Conductor'}`}
-            onPress={handleLogin}
-            style={styles.loginButton}
-          />
+  title={`Iniciar Sesión como ${selectedMode === 'passenger' ? 'Pasajero' : 'Conductor'}`}
+  onPress={handleLogin}
+  style={styles.loginButton}
+  textStyle={styles.loginButtonText}
+/>
 
-          {/* Enlaces adicionales */}
-          <View style={styles.links}>
-            <TouchableOpacity>
-              <Text style={styles.linkText}>¿Olvidaste tu contraseña?</Text>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <Text style={styles.linkText}>Crear cuenta nueva</Text>
-            </TouchableOpacity>
-          </View>
+  <View style={styles.linksContainer}>
+  <TouchableOpacity 
+    style={styles.createAccountButton}
+    onPress={() => navigation.navigate('Register', { mode: selectedMode })}
+  >
+    <Text style={styles.createAccountText}>Crear Cuenta Nueva</Text>
+  </TouchableOpacity>
+</View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -220,16 +220,39 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.lg,
   },
   loginButton: {
-    marginBottom: SPACING.lg,
+  marginBottom: SPACING.lg,
+  backgroundColor: COLORS.white,
+  borderRadius: 12,
+  paddingVertical: SPACING.md,
+  shadowColor: COLORS.black,
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+  elevation: 3,
+},
+loginButtonText: {
+  color: COLORS.primary,
+  fontSize: SIZES.md,
+  fontWeight: 'bold',
+},
+  linksContainer: {
+    alignItems: 'center',
+    marginTop: SPACING.lg,
   },
-  links: {
+  createAccountButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: COLORS.white,
+    borderRadius: 12,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.xl,
+    minWidth: 200,
     alignItems: 'center',
   },
-  linkText: {
+  createAccountText: {
     color: COLORS.white,
-    fontSize: SIZES.sm,
-    marginVertical: SPACING.xs,
-    textDecorationLine: 'underline',
+    fontSize: SIZES.md,
+    fontWeight: '600',
   },
 });
 
