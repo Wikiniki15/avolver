@@ -17,78 +17,76 @@ import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { COLORS, SPACING, SIZES } from '../utils/constants';
+import { useRegister } from '../context/useRegister';
 
 const RegisterScreen = ({ navigation, route }) => {
-  const [name, setName] = useState('');
+const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login, register } = useAuth();
+
   const userMode = route?.params?.mode || 'passenger';
 
-  const handleRegister = async () => {
-  // Validaciones
-  if (!name.trim()) {
-    Alert.alert('Error', 'El nombre es obligatorio');
-    return;
-  }
-  
-  if (!email.trim()) {
-    Alert.alert('Error', 'El correo electrónico es obligatorio');
-    return;
-  }
-  
-  if (!phone.trim()) {
-    Alert.alert('Error', 'El teléfono es obligatorio');
-    return;
-  }
-  
-  if (!password || password.length < 6) {
-    Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres');
-    return;
-  }
-  
-  if (password !== confirmPassword) {
-    Alert.alert('Error', 'Las contraseñas no coinciden');
-    return;
-  }
+  const { login } = useAuth();
+  const { register: registrarUsuario } = useRegister();
 
-  setIsLoading(true);
-  
-  try {
-    // Registrar usuario
-    const result = await register(name, email, phone, password, userMode);
-    
-    if (!result.success) {
-      Alert.alert('Error', result.error);
+  const handleRegister = async () => {
+    if (!name.trim()) {
+      Alert.alert('Error', 'El nombre es obligatorio');
       return;
     }
-    
-    Alert.alert(
-      'Cuenta Creada',
-      `Tu cuenta de ${userMode === 'passenger' ? 'pasajero' : 'conductor'} ha sido creada exitosamente.`,
-      [
-        {
-          text: 'Iniciar Sesión',
-          onPress: async () => {
-            // Automaticamente hacer login después del registro
-            const loginResult = await login(email, password, userMode);
-            if (!loginResult.success) {
-              Alert.alert('Error', 'Error al iniciar sesión automáticamente');
+
+    if (!email.trim()) {
+      Alert.alert('Error', 'El correo electrónico es obligatorio');
+      return;
+    }
+
+    if (!password || password.length < 6) {
+      Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Las contraseñas no coinciden');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const tipoUsuario = userMode === 'passenger' ? 'ciudadano' : 'conductor';
+
+      const result = await registrarUsuario(name, email, password, tipoUsuario);
+
+      if (!result.success) {
+        Alert.alert('Error', result.error || 'No se pudo crear la cuenta');
+        return;
+      }
+
+      Alert.alert(
+        'Cuenta Creada',
+        `Tu cuenta de ${userMode === 'passenger' ? 'pasajero' : 'conductor'} ha sido creada exitosamente.`,
+        [
+          {
+            text: 'Iniciar Sesión',
+            onPress: async () => {
+              const loginResult = await login(email, password, userMode);
+              if (!loginResult.success) {
+                Alert.alert('Error', 'Error al iniciar sesión automáticamente');
+              }
             }
           }
-        }
-      ]
-    );
-    
-  } catch (error) {
-    Alert.alert('Error', 'No se pudo crear la cuenta. Intenta de nuevo.');
-  } finally {
-    setIsLoading(false);
-  }
-};
+        ]
+      );
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo crear la cuenta. Intenta de nuevo.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
 
   const goToLogin = () => {
     navigation.goBack();
@@ -134,15 +132,6 @@ const RegisterScreen = ({ navigation, route }) => {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 leftIcon="mail-outline"
-              />
-              
-              <Input
-                label="Teléfono"
-                value={phone}
-                onChangeText={setPhone}
-                placeholder="+593 99 123 4567"
-                keyboardType="phone-pad"
-                leftIcon="call-outline"
               />
               
               <Input

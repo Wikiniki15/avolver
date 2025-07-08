@@ -16,6 +16,7 @@ import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import { COLORS, SPACING, SIZES } from '../utils/constants';
 import { globalStyles } from '../styles/globalStyles';
+import { obtenerUbicacionesRutas } from '../context/rutas/rutas.request';
 
 const PassengerHomeScreen = () => {
   const { user, logout } = useAuth();
@@ -31,14 +32,23 @@ const PassengerHomeScreen = () => {
     loadNearbyBuses();
   }, []);
 
-  const loadNearbyBuses = () => {
-    const mockBuses = [
-      { id: 1, plate: 'ABC-123', distance: '2 min', available: true },
-      { id: 2, plate: 'DEF-456', distance: '5 min', available: true },
-      { id: 3, plate: 'GHI-789', distance: '8 min', available: false },
-    ];
-    setNearbyBuses(mockBuses);
+  const loadNearbyBuses = async () => {
+    try {
+      const rutas = await obtenerUbicacionesRutas();
+
+      const formateado = rutas.map(r => ({
+        id: r.id,
+        plate: r.placa || 'Sin placa',
+        distance: r.distancia || 'Desconocido',
+        available: true
+      }));
+
+      setNearbyBuses(formateado);
+    } catch (error) {
+      console.error('Error al cargar buses cercanos:', error);
+    }
   };
+
 
   const handleTransportRequest = async () => {
     if (!origin.trim() || !destination.trim()) {
